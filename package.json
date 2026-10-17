@@ -1,0 +1,59 @@
+{
+  "name": "@osrcmap/avisos-pe",
+  "version": "0.1.0",
+  "description": "Avisos meteorológicos y de activación de quebradas del SENAMHI (Perú) como JSON, GeoJSON y CAP 1.2 + CLI agent-first: qué avisos cubren un punto.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Oscar Macchiavello (https://github.com/osrcmap)",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/osrcmap/avisos-pe.git"
+  },
+  "homepage": "https://github.com/osrcmap/avisos-pe#readme",
+  "bugs": "https://github.com/osrcmap/avisos-pe/issues",
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "peru",
+    "senamhi",
+    "avisos",
+    "alertas",
+    "cap",
+    "huaico",
+    "geojson",
+    "cli",
+    "el-nino"
+  ],
+  "bin": {
+    "avisos-pe": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "SKILL.md",
+    "LIMITATIONS.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "bun src/bin.ts",
+    "build": "bun build src/bin.ts --target=node --outfile dist/cli.js",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check .",
+    "prepublishOnly": "bun run typecheck && bun test && bun run build && node scripts/humo.mjs"
+  },
+  "dependencies": {
+    "@turf/boolean-point-in-polygon": "^7.4.0",
+    "cheerio": "^1.2.0",
+    "picocolors": "^1.1.1",
+    "xmlbuilder2": "^4.0.3",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.15",
+    "@types/bun": "^1.4.3",
+    "typescript": "^5.9.0"
+  }
+}
