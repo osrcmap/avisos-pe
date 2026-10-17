@@ -11,6 +11,7 @@ Lee esto antes de usar `avisos-pe` para informar a personas.
 
 ## Dependencia de la fuente
 
+- **El SENAMHI no responde desde fuera del Perú o desde la nube.** El 17 de octubre de 2026, senamhi.gob.pe agotó el tiempo de espera desde GitHub Actions (EE. UU.) en dos intentos, mientras respondía en menos de 2 s desde el Perú. Un bot o servidor que use avisos-pe debe correr en el Perú o salir por un proxy peruano.
 - Se consulta al SENAMHI en cada uso (con caché de 10 minutos). Si no responde, el resultado es el error `FUENTE_NO_DISPONIBLE`, nunca una lista vacía.
 - La lista de avisos se lee del HTML de senamhi.gob.pe. Si cambia el formato, el resultado es `FORMATO_INESPERADO`. Una fila reciente ilegible hace fallar la consulta completa para no perder un aviso; las filas antiguas ilegibles se descartan y `doctor` las cuenta.
 - Si el SENAMHI no publica las zonas de un día de un aviso, ese aviso aparece en `no_evaluables`.

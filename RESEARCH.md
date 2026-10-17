@@ -55,6 +55,10 @@ Página: `https://www.senamhi.gob.pe/main.php?dp=lima&p=aviso-activacion-quebrad
 - Zonas: WFS `g_acti_quebrada:view_av_activ_qdra` (sin `viewparams`): solo el aviso actual. Campos `nivel`, `fecha`, `descripcion`, `recomendacion`, `nombdep`, `nombprov`, `nombdist`, `geom`. No trae número ni vigencia.
 - El mapa también llama a `include/ajax_informacion*.php` (conteos de instituciones educativas, establecimientos de salud y vías expuestas); no se usa.
 
+## Acceso desde el extranjero
+
+El 17 de octubre de 2026, `https://www.senamhi.gob.pe` agotó el tiempo de espera (30 s, dos ejecuciones) desde los runners de GitHub Actions, mientras respondía en 1.7 s desde una conexión en el Perú. Parece un bloqueo a IPs extranjeras o de nube. Por eso no hay un chequeo diario de la fuente en CI.
+
 ## CAP
 
 El SENAMHI no publica CAP: no hay feed en su web ni aparece en el Severe Weather Information Centre de la OMM. avisos-pe genera CAP 1.2 validado contra `CAP-v1.2.xsd` de OASIS.

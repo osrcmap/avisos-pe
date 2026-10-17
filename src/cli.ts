@@ -31,6 +31,7 @@ import {
   quebradas,
   URL_LISTA,
   URL_QUEBRADAS,
+  URL_QUEBRADAS_WFS,
 } from "./senamhi.js";
 import { fechaLima, isoLima } from "./tiempo.js";
 
@@ -436,57 +437,75 @@ function cmdSchema(e: z.infer<typeof ENTRADAS.schema>): Resultado {
   };
 }
 
+/** Un chequeo de doctor que conserva su nombre aunque falle (runDoctor lo llamaría "unknown"). */
+const chequeo = (name: string, fn: () => Promise<{ ok: boolean; detail: string }>) => async () => {
+  try {
+    return { name, ...(await fn()) };
+  } catch (err) {
+    return { name, ok: false, detail: err instanceof Error ? err.message : String(err) };
+  }
+};
+
 async function cmdDoctor(e: z.infer<typeof ENTRADAS.doctor>): Promise<Resultado> {
   const o: OpcionesHttp = { cacheSegundos: 0, intentos: 1, timeoutMs: 30_000 };
   const checks = [
-    async () => {
+    chequeo("cache", async () => {
       try {
         mkdirSync(DIR_CACHE, { recursive: true });
         accessSync(DIR_CACHE, constants.W_OK);
-        return { name: "cache", ok: true, detail: DIR_CACHE };
+        return { ok: true, detail: DIR_CACHE };
       } catch (err) {
-        return {
-          name: "cache",
-          ok: true,
-          detail: `sin caché (${(err as Error).message}); se consultará siempre`,
-        };
+        return { ok: true, detail: `sin caché (${(err as Error).message}); se consultará siempre` };
       }
-    },
+    }),
   ];
   if (!e["sin-red"]) {
     let primero: AvisoListado | undefined;
-    checks.push(async () => {
-      const l = await lista(o);
-      const act = activos(l.avisos, Date.now());
-      primero = act[0] ?? l.avisos[0];
-      return {
-        name: "lista",
-        ok: true,
-        detail: `${l.avisos.length} avisos leídos (${act.length} activos, ${l.descartadas} filas antiguas ilegibles)`,
-      };
-    });
-    checks.push(async () => {
-      if (!primero) return { name: "zonas", ok: false, detail: "sin avisos para probar (falló la lista)" };
-      const d = await dias(primero, o);
-      const n = d.dias.reduce((s, x) => s + x.poligonos.length, 0);
-      return {
-        name: "zonas",
-        ok: n > 0,
-        detail: `aviso ${primero.numero}-${primero.anio}: ${n} polígonos en ${d.dias.length} días`,
-      };
-    });
-    checks.push(async () => {
-      const q = await quebradas(o);
-      const c = q.cabecera;
-      return {
-        name: "quebradas",
-        ok: true,
-        detail: `aviso ${c.numero}-${c.anio}, nivel ${NIVELES[c.nivel].color}, ${q.zonas.length} zonas, hasta ${isoLima(Date.parse(c.fin))}`,
-      };
-    });
+    checks.push(
+      chequeo("lista", async () => {
+        const l = await lista(o);
+        const act = activos(l.avisos, Date.now());
+        primero = act[0] ?? l.avisos[0];
+        return {
+          ok: true,
+          detail: `${l.avisos.length} avisos leídos (${act.length} activos, ${l.descartadas} filas antiguas ilegibles)`,
+        };
+      }),
+      // GeoServer por separado: si falla solo uno de los dos servidores, se ve cuál.
+      chequeo("geoserver", async () => {
+        const r = await pedir(URL_QUEBRADAS_WFS, o);
+        return { ok: true, detail: `idesep.senamhi.gob.pe responde (${r.cuerpo.length} bytes)` };
+      }),
+      chequeo("zonas", async () => {
+        if (!primero) return { ok: false, detail: "sin avisos para probar (falló la lista)" };
+        const d = await dias(primero, o);
+        const n = d.dias.reduce((s, x) => s + x.poligonos.length, 0);
+        return {
+          ok: n > 0,
+          detail: `aviso ${primero.numero}-${primero.anio}: ${n} polígonos en ${d.dias.length} días`,
+        };
+      }),
+      chequeo("quebradas", async () => {
+        const q = await quebradas(o);
+        const c = q.cabecera;
+        return {
+          ok: true,
+          detail: `aviso ${c.numero}-${c.anio}, nivel ${NIVELES[c.nivel].color}, ${q.zonas.length} zonas, hasta ${isoLima(Date.parse(c.fin))}`,
+        };
+      }),
+    );
   }
   const r = await runDoctor(checks);
-  return { valor: r, fallido: !r.ok };
+  const pasos: NextStep[] = r.ok
+    ? []
+    : [
+        {
+          command: "curl -I https://www.senamhi.gob.pe",
+          description: "El SENAMHI no responde a muchas conexiones desde fuera del Perú o desde la nube",
+          optional: true,
+        },
+      ];
+  return { valor: r, pasos, fallido: !r.ok };
 }
 
 // ---------- Main ----------

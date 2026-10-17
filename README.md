@@ -68,6 +68,8 @@ Avisos del SENAMHI para (-5.01039, -79.24678) al 2026-10-17 04:08 (hora de Perú
 
 Si el SENAMHI no publicó las zonas de algún día de un aviso, `punto` lo lista en `no_evaluables`: nunca se omite en silencio.
 
+> **Ejecútalo desde el Perú.** senamhi.gob.pe no responde a conexiones desde servidores en el extranjero o en la nube (por ejemplo, GitHub Actions). Un bot debe correr en el Perú o salir por un proxy peruano.
+
 ## Cobertura
 
 | Publicación del SENAMHI | Cubierta | Cómo |

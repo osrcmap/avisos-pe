@@ -29,7 +29,7 @@ export const ERRORES = {
   FUENTE_NO_DISPONIBLE: {
     name: "FuenteNoDisponible",
     human: "No se pudo consultar al SENAMHI.",
-    hint: "No se puede afirmar que no haya avisos. Reintenta en unos minutos o revisa senamhi.gob.pe. Diagnóstico: `avisos-pe doctor`.",
+    hint: "No se puede afirmar que no haya avisos. Reintenta en unos minutos o revisa senamhi.gob.pe. El SENAMHI no responde a muchas conexiones desde fuera del Perú o desde la nube: ejecuta avisos-pe en el Perú o a través de un proxy peruano. Diagnóstico: `avisos-pe doctor`.",
   },
   FORMATO_INESPERADO: {
     name: "FormatoInesperado",
