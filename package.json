@@ -1,6 +1,6 @@
 {
   "name": "@osrcmap/avisos-pe",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Avisos meteorológicos y de activación de quebradas del SENAMHI (Perú) como JSON, GeoJSON y CAP 1.2 + CLI agent-first: qué avisos cubren un punto.",
   "type": "module",
   "license": "MIT",
@@ -44,16 +44,14 @@
     "lint": "biome check .",
     "prepublishOnly": "bun run typecheck && bun test && bun run build && node scripts/humo.mjs"
   },
-  "dependencies": {
-    "@turf/boolean-point-in-polygon": "^7.4.0",
-    "cheerio": "^1.2.0",
-    "picocolors": "^1.1.1",
-    "xmlbuilder2": "^4.0.3",
-    "zod": "^4.6.7"
-  },
   "devDependencies": {
     "@biomejs/biome": "^2.5.15",
+    "@turf/boolean-point-in-polygon": "^7.4.0",
     "@types/bun": "^1.4.3",
-    "typescript": "^5.9.0"
+    "cheerio": "^1.2.0",
+    "picocolors": "^1.1.1",
+    "typescript": "^5.9.0",
+    "xmlbuilder2": "^4.0.3",
+    "zod": "^4.6.7"
   }
 }

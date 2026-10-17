@@ -2,7 +2,7 @@
 // Levanta un servidor local que imita al SENAMHI con test/fixtures: no depende de la red.
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
-import { existsSync, mkdtempSync, readFileSync } from "node:fs";
+import { cpSync, existsSync, mkdtempSync, readFileSync } from "node:fs";
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -10,6 +10,10 @@ import { join } from "node:path";
 const raiz = new URL("..", import.meta.url).pathname;
 const fx = (n) => join(raiz, "test/fixtures", n);
 const pkg = JSON.parse(readFileSync(join(raiz, "package.json"), "utf8"));
+
+// Copia aislada (solo lo que se publica, sin node_modules): falla si el bundle deja de ser autónomo.
+const aislado = mkdtempSync(join(tmpdir(), "avisos-pe-humo-"));
+for (const f of ["dist", "package.json"]) cpSync(join(raiz, f), join(aislado, f), { recursive: true });
 
 const servidor = createServer((req, res) => {
   const u = new URL(req.url, "http://x");
@@ -36,7 +40,7 @@ const base = `http://localhost:${servidor.address().port}`;
 
 function correr(...args) {
   return new Promise((ok) => {
-    const hijo = spawn(process.execPath, [join(raiz, "dist/cli.js"), ...args, "--json"], {
+    const hijo = spawn(process.execPath, [join(aislado, "dist/cli.js"), ...args, "--json"], {
       env: {
         ...process.env,
         AVISOS_PE_BASE_WEB: base,
